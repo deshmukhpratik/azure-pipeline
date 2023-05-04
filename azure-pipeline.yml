@@ -1,0 +1,56 @@
+name : NetCore-CustomerApi-CI
+trigger:
+  branches:
+    include:
+      - development
+  paths:
+    include:
+      - TemplateDownloadCore/*
+ 
+pool:
+  vmImage: 'windows-latest'
+ 
+variables:
+  buildConfiguration: 'Release'
+  connectionName: 'Template_Download'
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Use .NET Core 5'
+  inputs:
+    version: 5.0.x
+ 
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: '**/**/TemplateDownloadCore.csproj'
+ 
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    projects: '**/**/TemplateDownloadCore.csproj' 
+ 
+- task: DotNetCoreCLI@2
+  displayName: 'Publish'
+  inputs:
+    command: 'publish'
+    publishWebProjects: True
+    projects: '**/**/TemplateDownloadCore.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+
+
+- task: PublishBuildArtifacts@1
+  name: 'PublishBuildArtifacts'
+  displayName: 'Publish build artifacts'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'AzureTestProject'
+    publishLocation: 'Container' 
+
+
+# Download an artifact named 'WebApp' to 'bin' in $(Build.SourcesDirectory)
+- task: DownloadPipelineArtifact@2
+  inputs:
+    artifactName: 'AzureTestProject'
+    targetPath: $(Build.SourcesDirectory)/bin
