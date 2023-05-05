@@ -1,23 +1,24 @@
-name : NetCore-CustomerApi-CI
+name : Template_Download_deployment
 trigger:
   branches:
     include:
-      - development
+      - POC_MSBUILD
   paths:
     include:
       - TemplateDownloadCore/*
  
 pool:
-  vmImage: 'windows-latest'
+  name: '39.6'
+  vmImage: 'ABHIAZCIPAPP057'
  
 variables:
   buildConfiguration: 'Release'
-  connectionName: 'Template_Download'
 
 steps:
 - task: UseDotNet@2
   displayName: 'Use .NET Core 5'
   inputs:
+    packageType: 'sdk'
     version: 5.0.x
  
 - task: DotNetCoreCLI@2
